@@ -2,59 +2,58 @@ import java.util.BitSet;
 
 public class BloomFilter {
 	
-	static String[] names = {"Willard", "grik", "Charles", "I am awesome at programming"};   // list of names
-	static int n = names.length;
+	static String[] data = {"William", "Greg", "Charles"};   // list of names
+	static int n = data.length;
 	static double m = Math.ceil((Math.log(0.001)*n)/(Math.log(2)*Math.log(0.5)));    // bitset length
 	static double k = Math.ceil(Math.log(2)*m/n);   // number of hash functions
+	static double falsePositiveProbability = Math.pow(1-Math.exp(-k*n/m), k); 
 	
-	static BitSet bloomFilter = new BitSet();				 // the list of trues or falses
+	static BitSet bloomFilter = new BitSet(); // the list of trues or falses
 	
-	public static void main(String[] args) {
-		
-		System.out.println(String.format("n (number of elements) is %d.", n));
-		System.out.println(String.format("m (the bloom filter's length) is %d.", (int) m));
-		System.out.println(String.format("k (the number of hash functions used) is %d.", (int) k));
-		
-		// adding names to the array
-		for(int i = 0; i < names.length; i++) {
-			for(int j = 0; j <= k; j++) {
-				add(names[i], j);
-			}
+	public static void add(String str) {
+		for(int i = 0; i <= k; i++) {
+			add(str, i);
 		}
+	}
 	
-	// the useful part
-		String query = "";
-		boolean yesno = contains(query);
-		if (yesno == true) {
-			double falsePositiveProbability = Math.pow(1-Math.exp(-k*n/m), k); 
-			System.out.println(String.format("%s is probably an element of the set.", query));
-			System.out.println(String.format("false positive rate: %.7f", falsePositiveProbability));
-		}
-		
-		else {
-			System.out.println(String.format("%s is not an element of the set.", query));
-		}
-		
-		}
-	
-	public static void add(String name, int seed) {
-		double i = Math.abs(murmurhash3x8632(name.getBytes(), 0, name.getBytes().length, seed));
+	private static void add(String str, int seed) {
+		double i = Math.abs(murmurhash3x8632(str.getBytes(), 0, str.getBytes().length, seed));
 		i = i % m;
 		
 		bloomFilter.set((int) i);
-		}
+	}
 	
-	public static boolean contains(String name) {
+	public static boolean contains(String str) {
 		for(int j = 0; j <= k; j++) {
-			double i = Math.abs(murmurhash3x8632(name.getBytes(), 0, name.getBytes().length, j));
+			double i = Math.abs(murmurhash3x8632(str.getBytes(), 0, str.getBytes().length, j));
 			i = i % m;
 			
 			if(bloomFilter.get((int) i) == false) {
 				return false;
 			}
 		}
+		
+		System.out.println(String.format(str +" is probably an element of the set.\n"));
 		return true;
 	}
+	
+	public static void main(String[] args) {
+			
+			System.out.println(String.format("n (number of elements) is %d.", n));
+			System.out.println(String.format("m (the bloom filter's length) is %d.", (int) m));
+			System.out.println(String.format("k (the number of hash functions used) is %d.", (int) k));
+			System.out.println(String.format("false positive rate: %.7f \n", falsePositiveProbability));
+			
+			// adding names to the array
+			for(int i = 0; i < data.length; i++) {
+					add(data[i]);
+			}
+
+			for (int i = 0; i < data.length; i++) {
+				contains(data[i]);
+			}
+			
+		}
 
 		
 	/** Returns the MurmurHash3_x86_32 hash. */
@@ -110,6 +109,3 @@ public class BloomFilter {
 	    return h1;
 	  }
 }
-	
-
-
