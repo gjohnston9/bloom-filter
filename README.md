@@ -1,4 +1,4 @@
 bloom-filter
 ============
 
-Implementation of a bloom filter (probabilistic data structure) in Java
+Implementation of a bloom filter (probabilistic data structure) in Java.
